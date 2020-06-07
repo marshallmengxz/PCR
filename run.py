@@ -4,6 +4,19 @@ import openpyxl
 import tkinter as tk
 from PIL import Image, ImageTk
 import pytesseract
+# from sklearn.cluster import KMeans
+# import scanpy as sc
+# from preprocess import read_dataset, normalize
+# from edgeConstruction import PCA_mKNN
+# import random
+# from itertools import combinations
+# from sklearn.decomposition import PCA
+# import matplotlib.pyplot as plt
+# from keras import backend as K
+# from sklearn.metrics import pairwise_distances
+# from sklearn import metrics
+# from sklearn.manifold import TSNE
+# from sklearn.cluster import SpectralClustering
 
 def bossID(bossname):
     if bossname=='双足飞龙':
@@ -16,6 +29,9 @@ def bossID(bossname):
         return(4)
     elif bossname=='弥诺陶洛斯':
         return (5)
+
+
+
 
 def read_data(image_path):
     imageObject = Image.open(image_path)
@@ -54,7 +70,7 @@ def auto_read():
     image = tk.Label(window,image=image_file)
     image.img=image_file
     image.pack()
-    image.place(x=500, y=50)
+    image.place(x=300, y=300)
     id1.set(playerid_set[0])
     id2.set(playerid_set[1])
     id3.set(playerid_set[2])
@@ -69,7 +85,8 @@ def auto_read():
     d4.set(damage_set[3])
 
 def auto_write():
-    savePath = '/Users/mengzixia/Downloads/工会战报刀表.xlsx'
+    loginfo.delete('1.0','end')
+    savePath = save_path.get('1.0','end-1c')
     date = 3
     # 读取excel文件
     myexcel = xlrd.open_workbook(savePath)
@@ -111,7 +128,6 @@ def auto_write():
     turn_set.append(turn2.get('1.0', 'end-1c'))
     turn_set.append(turn3.get('1.0', 'end-1c'))
     turn_set.append(turn4.get('1.0', 'end-1c'))
-    print(playerid_set, bossid_set, damage_set)
 
     for playerid, bossid, damage, turn in zip(playerid_set, bossid_set, damage_set, turn_set):
         if playerid in id_set:
@@ -130,13 +146,27 @@ def auto_write():
             ws.cell(row=id_index + 1, column=date_index + 2, value=damage)
             ws.cell(row=id_index + 1, column=date_index, value=turn)
         else:
-            print('not in list')
+            loginfo.insert('end',playerid+' is not in the ID list\n\n')
     data.save(savePath)
+
+def auto_info():
+    savePath=save_path.get('1.0','end-1c')
+    myexcel = xlrd.open_workbook(savePath)
+    table = myexcel.sheets()[0]
+    rows = table.nrows
+    id_set = []
+    for i in range(rows):
+        id_set.append(table.cell_value(i, 0))  # 返回单元格中的数据
+    id_set = filter(None, id_set)
+    for id in id_set:
+        box1.insert('end',id)
+
+
 
 window = tk.Tk()
 
 window.title('My window')
-window.geometry('700x300')
+window.geometry('700x700')
 cropped=0
 path = tk.StringVar()    # 将label标签的内容设置为字符类型，用var来接收hit_me函数的传出内容用以显示在标签上
 id1 = tk.StringVar()
@@ -151,7 +181,7 @@ d1 = tk.StringVar()
 d2 = tk.StringVar()
 d3 = tk.StringVar()
 d4 = tk.StringVar()
-
+log='Successfully added 4 records!'
 
 
 
@@ -159,6 +189,12 @@ path_entry = tk.Text(window, font=('Arial', 14))
 path_entry.insert('insert','/Users/mengzixia/Desktop/damage/8.jpg')
 path_entry.pack()
 path_entry.place(height=30,width=330,x=150,y=30)
+
+save_path = tk.Text(window, font=('Arial', 14))
+save_path.insert('insert','/Users/mengzixia/Downloads/工会战报刀表.xlsx')
+save_path.pack()
+save_path.place(height=30,width=330,x=300,y=600)
+
 path_label = tk.Label(window,text='图片地址',fg='black', font=('Arial', 12))
 path_label.pack()
 path_label.place(height=30,width=50,x=80,y=30)
@@ -209,7 +245,7 @@ label5.place(height=30,width=50,x=150,y=120)
 
 label6 = tk.Label(window,text='Boss_id',fg='black', font=('Arial', 12))
 label6.pack()
-label6.place(height=30,width=50,x=220,y=120)
+label6.place(height=30,width=50,x=230,y=120)
 
 label7 = tk.Label(window,text='Damage',fg='black', font=('Arial', 12))
 label7.pack()
@@ -221,7 +257,32 @@ label8.place(height=30, width=50, x=80, y=120)
 
 label9 = tk.Label(window, text='识别区域预览', fg='black', font=('Arial', 12))
 label9.pack()
-label9.place(height=30, width=80, x=500, y=30)
+label9.place(height=30, width=80, x=300, y=270)
+
+label10 = tk.Label(window, text='工会成员', fg='black', font=('Arial', 12))
+label10.pack()
+label10.place(height=30, width=80, x=70, y=270)
+
+label11 = tk.Label(window, text='工会成员文件路径', fg='black', font=('Arial', 12))
+label11.pack()
+label11.place(height=30, width=120, x=290, y=570)
+
+loginfo = tk.Text(window, fg='black', font=('Arial', 15),spacing1=2)
+loginfo.pack()
+loginfo.place(height=200, width=150, x=500, y=50)
+
+b_info = tk.Button(window, text='获取成员信息', font=('Arial', 12), width=15, height=1, command=auto_info)
+b_info.pack()
+b_info.place(x=150,y=275)
+
+sb = tk.Scrollbar(window)
+box1 = tk.Listbox(window,height=20,selectmode='single',yscrollcommand=sb.set)
+box1.pack(side='left',fill='both')
+sb.config(command=box1.yview)
+sb.pack(side='right',fill='y')
+
+box1.place(x=70,y=300)
+
 
 turn1 = tk.Text(window, height=2, spacing1=2)
 turn1.insert('insert','1')
@@ -246,6 +307,7 @@ turn4.place(height=30,width=50,x=90,y=240)
 # id_widge1 = tk.Text(window, height=2, spacing1=2)
 # id_widge1.delete('1.0','end')
 # id_widge1.insert('insert',id1.get())
+
 id_widge1 = tk.Entry(window,textvariable=id1, font=('Arial', 9))
 id_widge1.pack()
 id_widge1.place(height=30, width=100, x=120, y=150)
@@ -264,19 +326,19 @@ id_widge4.place(height=30, width=100, x=120, y=240)
 
 boss_widge1 = tk.Entry(window, textvariable=bi1, font=('Arial', 9))
 boss_widge1.pack()
-boss_widge1.place(height=30, width=15, x=240, y=150)
+boss_widge1.place(height=30, width=30, x=240, y=150)
 
 boss_widge2 = tk.Entry(window, textvariable=bi2, font=('Arial', 9))
 boss_widge2.pack()
-boss_widge2.place(height=30, width=15, x=240, y=180)
+boss_widge2.place(height=30, width=30, x=240, y=180)
 
 boss_widge3 = tk.Entry(window, textvariable=bi3, font=('Arial', 9))
 boss_widge3.pack()
-boss_widge3.place(height=30, width=15, x=240, y=210)
+boss_widge3.place(height=30, width=30, x=240, y=210)
 
 boss_widge4 = tk.Entry(window, textvariable=bi4, font=('Arial', 9))
 boss_widge4.pack()
-boss_widge4.place(height=30, width=15, x=240, y=240)
+boss_widge4.place(height=30, width=30, x=240, y=240)
 
 damage_widge1 = tk.Entry(window, textvariable=d1, font=('Arial', 9))
 damage_widge1.pack()
