@@ -8,6 +8,7 @@ Packages needed:
 
 Image recognition is supported by tesseract. You need to set tesseract path under your own environments.
 Tessdatas of chi_sim, eng,chi_tra are also needed.
+
 Usage:
 1.  输入图片路径、文件保存路径。
 2.  设定图片截图范围。
