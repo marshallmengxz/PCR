@@ -6,7 +6,8 @@ Packages needed:
 4.PIL
 5.pytesseract
 
-Image recognition is supported by tesseract.\n You need to set tesseract path under your own environments.
+Image recognition is supported by tesseract. You need to set tesseract path under your own environments.
+
 Tessdatas of chi_sim, eng,chi_tra are also needed.
 
 Usage:
