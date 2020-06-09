@@ -1,22 +1,10 @@
-
-import xlrd
-import openpyxl
+#!/usr/bin/env python
+from xlrd import open_workbook
+from openpyxl import load_workbook
 import tkinter as tk
 from PIL import Image, ImageTk
 import pytesseract
-# from sklearn.cluster import KMeans
-# import scanpy as sc
-# from preprocess import read_dataset, normalize
-# from edgeConstruction import PCA_mKNN
-# import random
-# from itertools import combinations
-# from sklearn.decomposition import PCA
-# import matplotlib.pyplot as plt
-# from keras import backend as K
-# from sklearn.metrics import pairwise_distances
-# from sklearn import metrics
-# from sklearn.manifold import TSNE
-# from sklearn.cluster import SpectralClustering
+
 
 def bossID(bossname):
     if bossname=='双足飞龙':
@@ -87,9 +75,9 @@ def auto_read():
 def auto_write():
     loginfo.delete('1.0','end')
     savePath = save_path.get('1.0','end-1c')
-    date = 3
+    date = int(day.get('1.0','end-1c'))
     # 读取excel文件
-    myexcel = xlrd.open_workbook(savePath)
+    myexcel = open_workbook(savePath)
     table = myexcel.sheets()[0]
 
     rows = table.nrows
@@ -105,7 +93,7 @@ def auto_write():
     # ID 列表
     id_set = table_content[0]
     # 修改excel文件
-    data = openpyxl.load_workbook(savePath)  # 可读可写
+    data = load_workbook(savePath)  # 可读可写
     present_round=1
     ws = data['Sheet1']
     playerid_set = []
@@ -133,7 +121,7 @@ def auto_write():
         if playerid in id_set:
             print(playerid, bossid, damage, turn)
             id_index = id_set.index(playerid)
-            date_index = 2 + (date - 2) * 3
+            date_index = 2 + (date - 1) * 3
             if (table_content[date_index][id_index] and [ord(c) for c in str(table_content[date_index + 1][id_index])] != [
                 ord(c) for c in damage]):
                 id_index = id_index + 1
@@ -151,7 +139,7 @@ def auto_write():
 
 def auto_info():
     savePath=save_path.get('1.0','end-1c')
-    myexcel = xlrd.open_workbook(savePath)
+    myexcel = open_workbook(savePath)
     table = myexcel.sheets()[0]
     rows = table.nrows
     id_set = []
@@ -267,6 +255,10 @@ label11 = tk.Label(window, text='工会成员文件路径', fg='black', font=('A
 label11.pack()
 label11.place(height=30, width=120, x=290, y=570)
 
+label12 = tk.Label(window,text='会战日', fg='black', font=('Arial', 12))
+label12.pack()
+label12.place(height=30, width=120, x=265, y=540)
+
 loginfo = tk.Text(window, fg='black', font=('Arial', 15),spacing1=2)
 loginfo.pack()
 loginfo.place(height=200, width=150, x=500, y=50)
@@ -303,6 +295,11 @@ turn4 = tk.Text(window, height=2, spacing1=2)
 turn4.insert('insert','1')
 turn4.pack()
 turn4.place(height=30,width=50,x=90,y=240)
+
+day = tk.Text(window,height=2,spacing1=2)
+day.insert('insert','1')
+day.pack()
+day.place(height=30,width=50,x=350,y=540)
 
 # id_widge1 = tk.Text(window, height=2, spacing1=2)
 # id_widge1.delete('1.0','end')
